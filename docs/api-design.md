@@ -1,48 +1,69 @@
-# API & Communication Design
+# API & Communication Design (API Dizayni)
 
-The IDE relies heavily on a hybrid communication model using both **RESTful APIs** (for simple stateless actions) and **WebSockets** (for real-time, bi-directional data streaming).
+Loyihada **RESTful API** va **WebSockets** orqali gibrid kommunikatsiya tizimi qo'llaniladi. REST ko'pincha holatsiz (stateless) va tezkor so'rovlar uchun ishlatilsa, WebSockets real vaqt (real-time) rejimida ikki tomonlama oqim (stream) uchun kerak.
 
-## 1. WebSocket Events (Socket.io)
-WebSockets are crucial for the real-time aspects of the IDE, such as the terminal and AI streaming.
+---
 
-### Terminal Events
-- **`pty:spawn`** (Client -> Server): Request to start a new terminal process.
-- **`pty:data`** (Server -> Client): Standard output stream from the OS shell to the xterm.js UI.
-- **`pty:input`** (Client -> Server): Keystrokes or commands sent from the client terminal UI to the OS shell.
-- **`pty:resize`** (Client -> Server): Adjusting terminal rows/cols when the frontend panel is resized.
+## 1. WebSocket Events (Socket.IO)
+WebSockets ayniqsa terminal, AI javoblarini streaming qilish va mobil ulanish uchun o'ta muhimdir.
 
-### File System Events
-- **`fs:watch_change`** (Server -> Client): Fired when a file is modified externally (e.g., via git pull or another editor). Prompts the frontend to update the tree or editor.
+### Terminal Hodisalari (Terminal Events)
+- **`pty:spawn`** *(Client -> Server)*: Yangi operatsion tizim terminali (Bash/PowerShell) ochish so'rovi.
+- **`pty:data`** *(Server -> Client)*: Terminaldan kelayotgan javob matnlari (OS shell'dan `xterm.js`ga).
+- **`pty:input`** *(Client -> Server)*: Foydalanuvchining klaviaturada yozgan harflari yoki buyruqlari.
+- **`pty:resize`** *(Client -> Server)*: Ekran o'lchami o'zgarganda terminaldagi qator va ustunlarni (rows/cols) to'g'rilash.
 
-### AI & Agent Events
-- **`ai:chat_stream`** (Server -> Client): Streaming tokens from the LLM to the chat panel for a typewriter effect.
-- **`agent:status_update`** (Server -> Client): Updates on the background tasks the AI agent is performing (e.g., "Reading file X", "Running command Y").
+### Fayl Tizimi Hodisalari (File System Events)
+- **`fs:watch_change`** *(Server -> Client)*: Agar fayl muhitdan (masalan `git pull` qilinganda) tashqaridan o'zgartirilsa, frontend'ga fayllar daraxti yoki editorni yangilash haqida signal beradi.
+
+### AI & Agent Hodisalari
+- **`ai:chat_stream`** *(Server -> Client)*: AI tomonidan yozilayotgan javoblarni so'zma-so'z (typewriter effekti bilan) uzatish.
+- **`agent:status_update`** *(Server -> Client)*: AI agentning orqa fonda qanday vazifa bajarayotganligini bildirish ("Faylni o'qiyapman", "npm install qilyapman").
+
+### Mobil va Sessiya Hodisalari (Mobile & Session Events)
+- **`session:join`** *(Mobile Client -> Server)*: Telefon orqali mavjud kompyuter sessiyasiga (xonaga) ulanish so'rovi.
+- **`session:sync`** *(Server -> Client/Mobile)*: Yangi qurilma ulanganda joriy holatni sinxronlashtirish.
+
+---
 
 ## 2. REST API Endpoints (Express.js)
-REST is used for standard CRUD operations where real-time streaming isn't strictly necessary.
+REST API lar asosan fayllarni boshqarish va Git amallari uchun ishlatiladi. Barcha API marshrutlari (routes) `/api/` bilan boshlanadi.
 
-### File Explorer (FS) API
+### Fayllarni Boshqarish (File System API - `/api/fs`)
 - **`GET /api/fs/tree?path=/`**
-  - Returns a nested JSON structure of directories and files.
+  - **Vazifa:** Papka va fayllarni iyerarxik tarzda (daraxt ko'rinishida) JSON formatda qaytaradi.
 - **`GET /api/fs/file?path=/src/app.js`**
-  - Returns the text content of a file to be loaded into Monaco Editor.
+  - **Vazifa:** Tanlangan faylning matnini (content) o'qib, `Monaco Editor`da ko'rsatish uchun qaytaradi.
 - **`POST /api/fs/file`**
-  - Creates a new file or directory.
+  - **Body:** `{ type: "file" | "folder", path: "/newFolder", content?: "..." }`
+  - **Vazifa:** Yangi fayl yoki papka yaratadi.
 - **`PUT /api/fs/file`**
-  - Saves edits to an existing file.
+  - **Body:** `{ path: "/src/app.js", content: "..." }`
+  - **Vazifa:** Tahrirlangan faylni saqlaydi (Save).
 - **`DELETE /api/fs/file`**
-  - Deletes a file or directory.
+  - **Body:** `{ path: "/src/old.js" }`
+  - **Vazifa:** Fayl yoki papkani o'chiradi.
 - **`PATCH /api/fs/move`**
-  - Renames or moves a file to a new path.
+  - **Body:** `{ oldPath: "/src/a.js", newPath: "/src/b.js" }`
+  - **Vazifa:** Faylni qayta nomlash yoki boshqa joyga ko'chirish (drag-and-drop).
 
-### Git Integration API
+### Git Integratsiyasi API (`/api/git`)
 - **`GET /api/git/status`**
-  - Returns the list of modified, untracked, and deleted files.
+  - **Vazifa:** O'zgartirilgan, qo'shilgan yoki o'chirilgan fayllar ro'yxatini (Git Status) qaytaradi.
 - **`POST /api/git/commit`**
-  - Stages all changes and creates a commit with the provided message.
+  - **Body:** `{ message: "Update UI" }`
+  - **Vazifa:** Barcha o'zgarishlarni "stage" qilib, berilgan xabar bilan kommit qiladi.
 - **`GET /api/git/diff?file=/src/app.js`**
-  - Returns the diff for a specific file to render a side-by-side view in the editor.
+  - **Vazifa:** Bitta fayldagi o'zgarishlarni (diff) qaytaradi. Editor'da oldingi va keyingi holatni yonma-yon ko'rsatish uchun ishlatiladi.
 
-## Security & Authentication
-- Localhost environments might bypass auth, but in a hosted environment, all API endpoints and WebSocket handshakes must be secured with a JWT token.
-- Path traversal protections must be strictly enforced on all `/api/fs/*` endpoints to prevent reading/writing outside the designated workspace root.
+### Foydalanuvchi va AI API (`/api/user`)
+- **`GET /api/user/models`**
+  - **Vazifa:** Foydalanuvchi saqlab qo'ygan shaxsiy AI API kalitlarini (OpenRouter va boshqalar) yuklaydi.
+- **`POST /api/user/models`**
+  - **Vazifa:** Yangi BYOK (Bring Your Own Key) kalitlarini ma'lumotlar bazasiga saqlaydi.
+
+---
+
+## 3. Xavfsizlik va Autentifikatsiya (Security & Auth)
+- **JWT Tokenlar:** Dastur vebda joylashtirilganda `/api/*` va Socket.IO so'rovlari JWT token bilan himoyalanishi kerak. (Lokal ishlaganda vaqtincha chetlab o'tilishi mumkin).
+- **Path Traversal himoyasi:** `/api/fs/*` ga yuborilgan barcha yo'llar (paths) ishchi papka ichida ekanligi server tomonidan tekshiriladi (`path.resolve` orqali yuqoriga chiqib ketish taqiqlanadi).
