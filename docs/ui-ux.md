@@ -1,64 +1,65 @@
 # UI & UX Architecture
 
-The interface of the AI-Powered IDE is designed to be familiar to VS Code users, while giving prominent, easily accessible real estate to AI and Agent interactions.
+The interface of **AiIDE** is meticulously designed to provide a professional, low-latency development environment. It draws heavy inspiration from VS Code to ensure an instantly familiar UX for developers, while carving out dedicated, prominent real estate for AI interactions.
 
-## Layout Structure
+---
 
-The screen is divided into 4 main regions:
+## 1. Core Layout Structure
 
-### 1. Activity Bar (Far Left)
-A narrow vertical strip holding icons to switch between primary views:
-- **Explorer:** File tree and workspace management.
-- **Search:** Global regex search and replace across the workspace.
-- **Source Control:** Git staging and commit interface.
-- **Settings:** Access to themes, preferences, and AI permissions.
+The main IDE window is divided into five distinct regions, optimized for widescreen desktop displays.
 
-### 2. Primary Sidebar (Left Panel)
-The content of this sidebar changes based on the Activity Bar selection.
-- **File Tree:** Supports drag-and-drop, context menus (Right Click -> New File, Delete, Rename).
-- It is resizable.
+### 1.1 Activity Bar (Far Left)
+A narrow, vertical strip containing icons to switch the context of the Primary Sidebar.
+- **Explorer (Files):** Manage the workspace.
+- **Search (Magnifying Glass):** Global text search.
+- **Source Control (Git Node):** Stage and commit changes.
+- **Settings (Gear Icon - Bottom):** Access themes, AI permissions, and external API key configurations.
 
-### 3. Editor Group (Center Main Area)
-- **Tabs:** Users can have multiple files open in tabs. The active tab is highlighted.
-- **Monaco Editor:** The core text editing experience. Supports IntelliSense, code folding, error highlighting (via language servers), and inline AI suggestions.
-- **Diff View:** Can split into two panes to show Git diffs or side-by-side file comparisons.
+### 1.2 Primary Sidebar (Left Panel)
+The content of this panel changes dynamically based on the Activity Bar selection.
+- **Resizability:** The user can drag the border to make it wider or narrower.
+- **Collapsibility:** Clicking the active Activity Bar icon toggles the sidebar's visibility, giving more room to the editor.
 
-### 4. Bottom Panel (Resizable Terminal Area)
-- **Terminal Tabs:** Manage multiple instances of bash/powershell/zsh.
-- **Output View:** System logs or build outputs.
-- **Problems:** Displays syntax errors or linter warnings across the project.
+### 1.3 Editor Group (Center Main Area)
+The primary workspace for writing code.
+- **Tab Bar:** Displays currently open files. The active tab is highlighted.
+- **Breadcrumbs (Optional):** A top navigation bar showing the folder path to the current file (e.g., `src > components > App.tsx`).
+- **Editor Canvas:** The Monaco Editor instance.
+- **Empty State:** If no files are open, a landing screen with quick keyboard shortcuts (e.g., `Ctrl+P` to search files, `Ctrl+Shift+` to open terminal) is displayed.
 
-### 5. Secondary Sidebar (Right Panel - The AI Core)
-This is where the IDE differentiates itself from a standard editor.
-- **AI Chat Tab:** A conversational interface. Users can `@` tag files to include them in the prompt context.
-- **Agent Workspace Tab:** A specialized view for the Autonomous Agent. 
-  - Displays the agent's current plan.
-  - Shows an activity log (e.g., "Agent modified `src/index.js`", "Agent ran `npm install`").
-  - Includes action buttons: "Approve Changes", "Stop Agent", "Provide Feedback".
+### 1.4 Bottom Panel (Terminal Area)
+A resizable drawer anchored to the bottom of the screen.
+- **Panel Tabs:** Switch between `Terminal`, `Output` (build logs), and `Problems` (linter errors).
+- **Terminal Management:** A plus icon (`+`) to open a new terminal instance, and a trash can icon (`🗑`) to kill the active instance.
 
-## Theming System
-- Built using CSS Variables (Custom Properties).
-- The theme engine supports dynamically swapping root CSS variables to change the look of the editor, terminal, and UI elements.
-- Pre-installed themes: VS Code Dark+, GitHub Light, Dracula, Monokai Pro, Solarized.
-- Users can switch themes via the Command Palette or Settings page instantly without a reload.
+### 1.5 Secondary Sidebar (Right Panel - The AI Core)
+This is the differentiating factor of AiIDE. It is persistently available on the right side.
+- **AI Chat Tab:** A conversational interface for Q&A, code explanations, and snippet generation.
+- **Agent Workspace Tab:** A task-oriented UI displaying the Agent's current plan, activity logs, and pending approval requests.
 
-## Modals & Dialogs
-- **Command Palette:** Activated via `Ctrl+Shift+P` (or `Cmd+Shift+P`). Allows quick access to all IDE actions, file opening, and AI commands.
-- **Permissions Modal:** A popup that appears when an AI Agent attempts a restricted action (e.g., executing a terminal command), requiring user approval if auto-approve is off.
-- **Mobile Connection Modal:** A dialog that displays the QR code and the 8-digit random code for pairing a mobile device to the current active session.
-- **AI Extension Configuration Modal:** A dedicated settings window where users can input external API keys (e.g., OpenRouter), test connections, and configure custom agent/chat settings.
+---
 
-## Frontend Windows & Views (Frontend Oynalari)
-To summarize the frontend experience, users will interact with the following distinct views/windows:
+## 2. Frontend Windows & Views (Complete List)
 
-1. **Authentication Window (Kirish va Ro'yxatdan o'tish Oynasi):** 
-   - Users are required to be authenticated to access the IDE. If unauthenticated, the user is immediately redirected to the Login/Register screen.
-   - **Data Sync Prompt:** Upon successful login, if the system detects previously configured external models (e.g., OpenRouter API keys) associated with the user's account, a prompt will ask: *"Would you like to import your previously saved AI models and configurations?"*
-   - Once authenticated and setup is complete, the user is navigated to their Working Directory (Asosiy ishchi papka).
+To accommodate the full lifecycle of a user session—from authentication to mobile pairing—the application routes users through several distinct views:
 
-2. **Main IDE Window (Asosiy Oyna):** The primary workspace containing the text editor, file tree, terminal, and AI sidebar.
-3. **Settings Window (Sozlamalar Oynasi):** For configuring themes, editor preferences, and AI behavior/permissions.
-4. **AI Provider Connection Window (API Ulanish Oynasi):** A dedicated interface to configure "Bring Your Own Key" (BYOK), setup OpenRouter, and manage custom AI models.
-5. **Mobile Pairing Screen (Mobil Ulanish Oynasi):** The QR code and 8-digit PIN display screen for connecting a smartphone to the session.
-6. **Command Palette (Buyruqlar Oynasi):** The floating search bar used for quickly finding files and running commands.
-7. **Agent Feedback/Approval View (Tasdiqlash Oynasi):** An interface within the AI panel where users can review code diffs generated by the AI before they are applied.
+1. **Authentication Window:** 
+   - The entry point for unauthenticated users. Features Login/Register forms.
+   - Upon login, a *Data Sync Prompt* asks if the user wants to import previously saved OpenRouter API keys.
+2. **Workspace Selector:** A screen where the user selects the local directory they want to open as a project.
+3. **Main IDE Window:** The primary interface described in the Layout Structure.
+4. **Settings Modal:** A centered overlay for configuring Themes, Editor Preferences (Font size, Tab size), and AI Permissions (File creation, Terminal execution).
+5. **AI Provider Connection Window (BYOK):** A dedicated settings interface for managing external API keys, testing connections, and selecting default LLM models.
+6. **Mobile Pairing Screen:** A modal displaying the QR code and the 8-digit random PIN for connecting a smartphone to the active session.
+7. **Command Palette (`Ctrl+Shift+P`):** A floating, centered search bar used for quickly finding files by name or executing IDE commands (e.g., "Format Document", "Change Theme").
+8. **Agent Feedback / Diff View:** A specialized modal or split-editor view that appears when an AI Agent proposes modifying a file, allowing the user to review the Git-style diff before hitting "Approve".
+
+---
+
+## 3. Theming Engine
+
+The visual identity of the IDE is entirely driven by **CSS Variables (Custom Properties)** and Tailwind CSS.
+
+- **Theme Swapping:** Changing a theme instantly updates the `--bg-primary`, `--text-main`, `--accent-color`, etc., attached to the root `<html>` element. There is no need to reload the page.
+- **Monaco Synchronization:** When the UI theme changes, the Monaco Editor's internal theme (`vs-dark`, `hc-black`, custom themes) is automatically synchronized via a React `useEffect` hook.
+- **Terminal Synchronization:** The `xterm.js` color palette (ANSI colors) is also re-injected to match the new overall aesthetic.

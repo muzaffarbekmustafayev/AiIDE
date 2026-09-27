@@ -1,41 +1,64 @@
-# Session Management (Sessiyalarni boshqarish)
+# Session & State Management
 
-## Overview
-A core feature of the AI-Powered IDE is **Session Management**. Sessions ensure that when a user closes the browser or disconnects, their entire workspace state is preserved. Upon returning, they can pick up exactly where they left off.
+A critical component of a web-based IDE is ensuring that the user never loses their work. **AiIDE** implements a robust Session Management system that preserves the exact state of the workspace across page reloads, browser closures, and remote mobile connections.
 
-## Session Data Structure
-A session encapsulates the entire state of a specific project/workspace. The backend or local storage will save the following data in a `session.json` or a lightweight SQLite database:
+---
 
-### 1. Editor State
-- **Open Files:** An array of file paths that are currently open in the tabs.
-- **Active File:** The specific file that is currently focused.
-- **Cursor & Scroll Positions:** The exact line/column cursor position and scroll depth for each opened file.
-- **Unsaved Changes:** Drafts of files that haven't been saved to the disk yet, preserved in memory/cache.
+## 1. What Constitutes a "Session"?
 
-### 2. Terminal State
-- **Active Terminals:** Number of terminal tabs currently open.
-- **Terminal History:** The stdout/stderr buffer for each terminal (so users can see previous commands when they reload).
-- **Working Directories:** The current path each terminal instance was navigating.
+A Session in AiIDE is an encapsulation of the user's current environment. It is tied to a specific **Working Directory** (Workspace Root) and includes:
 
-### 3. AI Context & History
-- **Chat Histories:** The ongoing conversation threads with the AI for that specific project.
-- **Agent Tasks:** The status of any background autonomous agent tasks (e.g., "In Progress", "Paused", "Completed").
-- **Selected Models:** The user's last used AI model (e.g., Claude 3.5, GPT-4) for this workspace.
+### A. Editor State
+- **Open Tabs:** An array of file paths that are currently open in the Monaco editor.
+- **Active Tab:** The specific file the user is currently looking at.
+- **Cursor & Scroll Positions:** The exact line and column the cursor was on, and the vertical scroll depth for *each* open file.
+- **Unsaved Drafts:** Text modifications that have not yet been written to the disk (stored in memory/local storage).
 
-### 4. UI/UX Layout
-- **Panel Sizes:** The width of the sidebar (File Explorer) and the height of the bottom panel (Terminal).
-- **Theme:** The specific theme applied to this session (though this can also be a global user setting).
+### B. Terminal State
+- **Active Terminals:** The number of terminal instances running.
+- **Terminal Buffers:** The stdout/stderr history of the terminal (so users can read previous logs even after a reload).
+- **Current Working Directories (CWD):** The specific folder each terminal instance was navigating.
 
-## Session Lifecycle
-1. **Initialization:** When the IDE loads a folder, it checks for an existing `.ide/session.json` (or calls a backend endpoint).
-2. **Auto-Saving:** The session state is auto-saved locally or to the backend every few seconds or on specific triggers (e.g., opening a new file, changing a tab).
-3. **Restoration:** On page reload, the frontend state manager (Zustand/Redux) hydrates the stores using the session data, re-spawning terminal PTYs and reopening Monaco Editor models.
+### C. UI & Layout State
+- **Panel Sizes:** The width of the Left Sidebar and the height of the Bottom Terminal panel.
+- **Active Sidebar View:** Whether the user was looking at the File Explorer, Git, or Search panel.
+- **Theme:** The active visual theme.
 
-## Multi-Workspace Support
-Users can have multiple workspaces. Each workspace folder generates a unique session ID. Switching between folders (projects) seamlessly loads the respective session context.
+### D. AI & Agent State
+- **Chat History:** The ongoing conversation thread with the AI.
+- **Agent Task Status:** If an AI Agent was in the middle of a multi-step task, its current progress and plan are saved.
 
-## Remote & Mobile Connection
-- **Mobile Access:** Sessions can be accessed and controlled remotely via mobile devices.
-- **Connection Methods:**
-  - **QR Code:** Users can scan a generated QR code from the IDE to instantly link their mobile device to the current session.
-  - **8-Digit Code:** Alternatively, a randomly generated 8-digit code can be entered on the mobile interface to securely join the active session.
+---
+
+## 2. Session Lifecycle & Persistence Strategy
+
+### 2.1 Initialization & Hydration
+When a user navigates to the IDE:
+1. The Frontend checks the Auth State.
+2. The user selects a Working Directory.
+3. The Frontend requests the session data for that directory from the Backend (or LocalStorage).
+4. **Hydration:** Zustand (or Redux) stores are populated with this data. The IDE automatically re-opens the necessary file tabs, requests the file contents from the `/api/fs` endpoint, and re-spawns terminal instances via Socket.IO.
+
+### 2.2 Auto-Saving (Debounced Sync)
+To minimize performance overhead, session state is not saved on every keystroke.
+- State changes (like scrolling or changing tabs) are tracked locally in the Zustand store.
+- A debounced function (e.g., every 3-5 seconds of inactivity) triggers a save event, serializing the JSON state to the Backend database or browser's LocalStorage.
+
+### 2.3 Multi-Workspace Support
+Users can switch between different projects (folders). Each folder generates a unique Session ID. Opening a new folder cleanly unmounts the current session and hydrates the new one, keeping project contexts strictly separated.
+
+---
+
+## 3. Remote Mobile Connectivity (Session Joining)
+
+The session architecture natively supports multi-device synchronization, enabling the **Mobile Connection** feature.
+
+### 3.1 The Pairing Process
+1. **Host Generation:** The desktop browser generates a unique, temporary pairing token (a QR Code and an 8-digit PIN).
+2. **Client Request:** The mobile device scans the QR code or enters the PIN on a dedicated mobile login page.
+3. **Socket Room Join:** The Node.js backend verifies the token and adds the mobile device's WebSocket connection to the same "Room" as the desktop session.
+
+### 3.2 State Synchronization
+Once paired, the backend acts as a relay:
+- If the mobile user types a command into the mobile terminal interface, the `pty:input` event is sent to the backend, executed, and the resulting `pty:data` is broadcasted to **both** the mobile screen and the desktop screen simultaneously.
+- If the AI Agent asks for permission to edit a file, the approval modal appears on both devices. The user can click "Approve" from their phone while away from the keyboard.
