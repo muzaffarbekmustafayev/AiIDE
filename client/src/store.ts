@@ -23,6 +23,13 @@ export interface EditorState {
     connected: boolean;
     setConnected: (connected: boolean) => void;
 
+    // AI Configuration
+    aiSettings: {
+        apiKey: string;
+        selectedModel: string;
+    };
+    setAiSettings: (settings: Partial<{ apiKey: string; selectedModel: string }>) => void;
+
     // File Tree State
     fileTree: FileNode[];
     setFileTree: (tree: FileNode[]) => void;
@@ -139,6 +146,13 @@ export const useEditorStore = create<EditorState>()(
             activeFileContent: '',
             activeFileLanguage: 'plaintext',
 
+            // AI Settings / OpenRouter integration
+            aiSettings: {
+                apiKey: '',
+                selectedModel: 'anthropic/claude-sonnet-4.5',
+            },
+            setAiSettings: (settings) => set({ aiSettings: { ...get().aiSettings, ...settings } }),
+
             setActiveFile: (path, content, language) => {
                 if (!path) { set({ activeTabPath: null, activeFilePath: null }); return; }
                 get().openFile(path, content, language);
@@ -147,10 +161,13 @@ export const useEditorStore = create<EditorState>()(
                 const { activeTabPath } = get();
                 if (activeTabPath) get().updateTabContent(activeTabPath, content);
             },
-        }),
+                }),
         {
             name: 'aiide-state',
-            partialize: (state) => ({ workspaceRoot: state.workspaceRoot }),
+            partialize: (state) => ({ 
+                workspaceRoot: state.workspaceRoot,
+                aiSettings: state.aiSettings
+            }),
         }
     )
 );
