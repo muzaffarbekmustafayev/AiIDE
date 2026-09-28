@@ -1,22 +1,24 @@
 {
   "name": "aiide",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "AI IDE - Cloud Developer Workspace",
+  "private": true,
   "bin": {
     "mzfck": "bin/mzfck.js"
   },
-  "directories": {
-    "doc": "docs"
-  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node server/index.js",
+    "build": "npm run build --workspace=client",
+    "start": "node server/index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "commander": "^15.0.0"
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.7"
   }
 }

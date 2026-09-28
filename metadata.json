@@ -1,0 +1,6 @@
+{
+  "name": "AI IDE",
+  "description": "AI-Powered Developer Workspace with Monaco Editor, Terminal, File Tree, and AI Assistant.",
+  "permissions": [],
+  "capabilities": []
+}

@@ -5,26 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI IDE</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              bg: { DEFAULT: '#0f111a', alt: '#141622', panel: '#1e2130' },
-              border: { DEFAULT: '#1e2130', hover: '#2a2e42' },
-              accent: { blue: '#4facfe', cyan: '#00f2fe', green: '#64ffda', yellow: '#e2c044' },
-              text: { primary: '#e2e8f0', secondary: '#8892b0', muted: '#5a627a' }
-            }
-          }
-        }
-      }
-    </script>
+    <meta name="description" content="AI-Powered Developer Workspace with Monaco Editor, Terminal, File Tree, and AI Assistant." />
+    <meta property="og:title" content="AI IDE" />
+    <meta property="og:description" content="AI-Powered Developer Workspace with Monaco Editor, Terminal, File Tree, and AI Assistant." />
   </head>
   <body class="bg-bg text-text-primary antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

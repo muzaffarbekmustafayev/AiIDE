@@ -4,7 +4,7 @@ const path = require('path');
 const router = express.Router();
 
 // Default workspace (can be overridden per-request via ?root=)
-const DEFAULT_WORKSPACE = process.env.WORKSPACE_ROOT || process.cwd();
+const DEFAULT_WORKSPACE = process.env.WORKSPACE_ROOT || path.resolve(__dirname, '../../..');
 
 // Get workspace root from query/body or use default
 function getWorkspaceRoot(req) {
@@ -31,9 +31,14 @@ async function buildTree(dirPath, workspaceRoot) {
         const fullPath = path.join(dirPath, item.name);
         const isDirectory = item.isDirectory();
         
+        let relativePath = fullPath.replace(workspaceRoot, '').replace(/\\/g, '/');
+        if (!relativePath.startsWith('/')) {
+            relativePath = '/' + relativePath;
+        }
+
         let node = {
             name: item.name,
-            path: fullPath.replace(workspaceRoot, '').replace(/\\/g, '/'),
+            path: relativePath,
             isDirectory
         };
 
@@ -51,10 +56,26 @@ async function buildTree(dirPath, workspaceRoot) {
     });
 }
 
+function resolveSecurePath(workspaceRoot, requestedPath) {
+    const root = path.resolve(workspaceRoot);
+    const cleanPath = requestedPath.replace(/^[/\\]+/, '');
+    const fullPath = path.resolve(root, cleanPath);
+    if (!fullPath.startsWith(root)) {
+        return null;
+    }
+    return fullPath;
+}
+
+// 0. Get current default workspace
+router.get('/workspace', (req, res) => {
+    const workspaceRoot = getWorkspaceRoot(req);
+    res.json({ root: workspaceRoot });
+});
+
 // 1. Get Workspace Tree (accepts ?root=/path/to/workspace)
 router.get('/tree', async (req, res) => {
     try {
-        const workspaceRoot = getWorkspaceRoot(req);
+        const workspaceRoot = path.resolve(getWorkspaceRoot(req));
         const tree = await buildTree(workspaceRoot, workspaceRoot);
         res.json(tree);
     } catch (err) {
@@ -69,8 +90,8 @@ router.get('/file', async (req, res) => {
         const filePath = req.query.path;
         if (!filePath) return res.status(400).json({ error: 'Path required' });
 
-        const fullPath = path.join(workspaceRoot, filePath);
-        if (!fullPath.startsWith(workspaceRoot)) {
+        const fullPath = resolveSecurePath(workspaceRoot, filePath);
+        if (!fullPath) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -88,8 +109,8 @@ router.put('/file', async (req, res) => {
         const { path: filePath, content } = req.body;
         if (!filePath) return res.status(400).json({ error: 'Path required' });
 
-        const fullPath = path.join(workspaceRoot, filePath);
-        if (!fullPath.startsWith(workspaceRoot)) {
+        const fullPath = resolveSecurePath(workspaceRoot, filePath);
+        if (!fullPath) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -107,8 +128,8 @@ router.post('/create', async (req, res) => {
         const { path: filePath, isDirectory } = req.body;
         if (!filePath) return res.status(400).json({ error: 'Path required' });
 
-        const fullPath = path.join(workspaceRoot, filePath);
-        if (!fullPath.startsWith(workspaceRoot)) {
+        const fullPath = resolveSecurePath(workspaceRoot, filePath);
+        if (!fullPath) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -131,8 +152,8 @@ router.delete('/delete', async (req, res) => {
         const filePath = req.query.path;
         if (!filePath) return res.status(400).json({ error: 'Path required' });
 
-        const fullPath = path.join(workspaceRoot, filePath);
-        if (!fullPath.startsWith(workspaceRoot)) {
+        const fullPath = resolveSecurePath(workspaceRoot, filePath);
+        if (!fullPath) {
             return res.status(403).json({ error: 'Access denied' });
         }
 
@@ -150,9 +171,9 @@ router.post('/rename', async (req, res) => {
         const { oldPath, newPath } = req.body;
         if (!oldPath || !newPath) return res.status(400).json({ error: 'oldPath and newPath required' });
 
-        const fullOld = path.join(workspaceRoot, oldPath);
-        const fullNew = path.join(workspaceRoot, newPath);
-        if (!fullOld.startsWith(workspaceRoot) || !fullNew.startsWith(workspaceRoot)) {
+        const fullOld = resolveSecurePath(workspaceRoot, oldPath);
+        const fullNew = resolveSecurePath(workspaceRoot, newPath);
+        if (!fullOld || !fullNew) {
             return res.status(403).json({ error: 'Access denied' });
         }
 

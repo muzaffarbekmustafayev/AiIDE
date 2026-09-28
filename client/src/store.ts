@@ -1,12 +1,14 @@
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-interface FileNode {
+
+export interface FileNode {
     name: string;
     path: string;
     isDirectory: boolean;
     children?: FileNode[];
 }
 
-interface EditorState {
+export interface EditorState {
     // Workspace State
     workspaceRoot: string;
     setWorkspaceRoot: (root: string) => void;
@@ -23,7 +25,7 @@ interface EditorState {
     activeFileLanguage: string;
     
     // Actions
-    setActiveFile: (path: string, content: string, language: string) => void;
+    setActiveFile: (path: string | null, content: string, language: string) => void;
     updateFileContent: (content: string) => void;
 }
 
@@ -68,4 +70,3 @@ export const useEditorStore = create<EditorState>()(
         }
     )
 );
-
