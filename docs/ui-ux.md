@@ -14,9 +14,10 @@ Landing page — bu butun tizimga kirish eshigi bo'lib, foydalanuvchi qanday usu
 - **Uch ta asosiy CTA (Call-to-Action) tugma:**
   | Tugma | Tavsif | Yo'nalish |
   |---|---|---|
-  | 🌐 **Brauzerda ishlatish** | Hech narsa o'rnatmasdan, darhol boshlash | `/login` → Web IDE |
+  | 🌐 **Brauzerda ishlatish** | Hech narsa o'rnatmasdan, darhol boshlash | Auth (Login/Register) → Web IDE |
   | 💻 **Desktop'ni yuklab olish** | Windows/macOS/Linux uchun o'rnatiladigan dastur | `downloads/` — `.exe` / `.dmg` / `.deb` |
   | ⌨️ **Terminalni yuklab olish** | Faqat aqlli terminal (kod muharririsiz) | `downloads/` — terminal-only build |
+- **Login / Register Rejasi:** Navbatdagi qadam sifatida Landing Page'dan keyin yoki yuqori panelda (Navbar) foydalanuvchilarni autentifikatsiya qilish (Auth) tizimi qo'shilishi rejalashtirilgan. Bu API kalitlarni va xususiy sessiyalarni cloud'da saqlash imkonini beradi.
 - **Mualliflar / Features bo'limi:** Loyihaning asosiy imkoniyatlari (AI agent, terminal, Git, sessiyalar).
 - **Footer:** GitHub, hujjatlar va lisensiya havolalari.
 
@@ -39,7 +40,7 @@ The content of this panel changes dynamically based on the Activity Bar selectio
 - **Resizability:** The user can drag the border to make it wider or narrower.
 - **Collapsibility:** Clicking the active Activity Bar icon toggles the sidebar's visibility, giving more room to the editor.
 
-#ga ## 1.3 Editor Group (Center Main Area)
+## 1.3 Editor Group (Center Main Area)
 The primary workspace for writing code.
 - **Tab Bar:** Displays currently open files. The active tab is highlighted.
 - **Breadcrumbs (Optional):** A top navigation bar showing the folder path to the current file (e.g., `src > components > App.tsx`).
