@@ -111,7 +111,6 @@
 .glass-button-primary:hover {
   opacity: 0.95;
   box-shadow: 0 12px 28px -4px rgba(79, 172, 254, 0.55);
-  transform: translateY(-1px);
 }
 
 /* Custom scrollbar */

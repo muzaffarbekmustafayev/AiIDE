@@ -58,7 +58,7 @@ const LandingPage: React.FC = () => {
                 </span>
               </div>
               <div className="mt-3">
-                <div className="w-12 h-12 rounded-xl bg-accent-blue/15 border border-accent-blue/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-accent-blue/15 border border-accent-blue/20 flex items-center justify-center mb-4">
                   <Globe size={24} className="text-accent-blue" />
                 </div>
                 <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Brauzerda ishlatish</h2>
@@ -75,7 +75,7 @@ const LandingPage: React.FC = () => {
                 </ul>
               </div>
               <div className="flex items-center justify-between pt-4 mt-5 border-t border-white/5">
-                <span className="text-xs font-semibold text-accent-blue flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
+                <span className="text-xs font-semibold text-accent-blue flex items-center gap-1.5">
                   IDE-ni ochish <ArrowRight size={14} />
                 </span>
                 <span className="text-[11px] text-text-muted">Darhol</span>

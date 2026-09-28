@@ -8,6 +8,7 @@ const fs = require('fs');
 const setupPty = require('./src/pty');
 const fsRoutes = require('./src/routes/fs');
 const gitRoutes = require('./src/routes/git');
+const aiRoutes = require('./src/routes/ai');
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ const io = new Server(server, {
 // Setup Routes
 app.use('/api/fs', fsRoutes);
 app.use('/api/git', gitRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Setup WebSockets
 io.on('connection', (socket) => {
@@ -34,45 +36,35 @@ const clientDist = path.resolve(clientRoot, 'dist');
 
 async function startServer() {
     if (fs.existsSync(path.join(clientDist, 'index.html'))) {
-        // Serve pre-built static client
         app.use(express.static(clientDist));
         app.get('*', (req, res) => {
             res.sendFile(path.join(clientDist, 'index.html'));
         });
     } else {
-        // Run Vite in middleware mode for hot development
-        try {
-            const { createServer: createViteServer } = await import('vite');
-            const vite = await createViteServer({
-                root: clientRoot,
-                server: {
-                    middlewareMode: true,
-                    host: '0.0.0.0',
-                    allowedHosts: true,
-                },
-                appType: 'spa'
-            });
-            app.use(vite.middlewares);
-            app.use('*', async (req, res, next) => {
-                const url = req.originalUrl;
-                try {
-                    let template = fs.readFileSync(path.resolve(clientRoot, 'index.html'), 'utf-8');
-                    template = await vite.transformIndexHtml(url, template);
-                    res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
-                } catch (e) {
-                    vite.ssrFixStacktrace(e);
-                    next(e);
-                }
-            });
-        } catch (err) {
-            console.warn('Vite middleware could not be loaded:', err.message);
-        }
+        console.log('Ishchi moddalar qurilishi topilmadi (client/dist).');
+        console.log('API + Socket.IO jarayonlari baribir ishlaydi.');
+        console.log('Frontend uchun: "npm run dev" (root katalog) — Vite 5173 portida ishlaydi.');
     }
 
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server listening on http://0.0.0.0:${PORT}`);
-    });
+    const BASE_PORT = parseInt(process.env.PORT || '4001', 10);
+
+    function tryListen(port) {
+        server.once('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                console.warn(`⚠️  Port ${port} band, ${port + 1} sinab ko'rilmoqda...`);
+                server.close();
+                tryListen(port + 1);
+            } else {
+                console.error('Server xatosi:', err);
+                process.exit(1);
+            }
+        });
+        server.listen(port, '0.0.0.0', () => {
+            console.log(`✅ Server listening on http://0.0.0.0:${port}`);
+        });
+    }
+
+    tryListen(BASE_PORT);
 }
 
 startServer();
