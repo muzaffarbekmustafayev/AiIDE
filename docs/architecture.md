@@ -64,7 +64,36 @@ Bu imkoniyat Socket.IO **"Rooms"** (Xonalar) xususiyati yordamida qurilgan:
 
 ---
 
-## 5. Security & Isolation (Xavfsizlik)
+## 5. Tarqatish modellari (Distribution Models)
+
+AiIDE bir xil kod bazeasidan uch xil mahsulot sifatida tarqatiladi (batafsil: [distribution-models.md](distribution-models.md)):
+
+### 5.1. Web IDE (brauzer)
+- Frontend: Vite dev-server yoki build qilingan `dist/` fayllar.
+- Backend: alohida Node.js jarayoni (`localhost:4001`).
+- Foydalanuvchi `http://localhost:5173` (yoki deploy qilingan manzil) orqali ulanadi.
+
+### 5.2. Desktop IDE (Electron)
+- **Electron main process** (`electron/main.js`):
+  - Ilova oynasini yaratadi va unga React `build` natijasini (`client/dist/index.html`) yuklaydi.
+  - `child_process.fork()` orqali `server/index.js` ni avtomatik ishga tushiradi (`PORT=4001` bilan).
+  - Ilova yopilganda server jarayonini ham yakunlaydi.
+- **Yakuniy build:** `electron-builder` yordamida:
+  - Windows → `.exe` (NSIS installer + portable)
+  - macOS → `.dmg`
+  - Linux → `.AppImage` / `.deb`
+- Barcha funksiyalar (fayl tizimi, terminal, Git, mobil ulanish) to'liq ishlayveradi, chunki backend shu kompyuterda ishlaydi.
+
+### 5.3. Standalone Terminal
+- Shu Electron qobig'ida, lekin boshqa `mainTerminal.js` kiritiladi:
+  - Electron oynasi faqat `/terminal-only` routing'ga qaratiladi.
+  - Ilova devori minimal (title bar + terminal paneli) bo'ladi.
+  - Backendda atigi `pty` va `socket` modullari faollashtiriladi (fayl CRUD va Git endpoint'lari yo'q sayqali qoldirilishi mumkin, lekin ulanish shart emas).
+
+> **Xavfsizlik (barcha modellarda):** Backend faqat `localhost` portida tinglaydi (`0.0.0.0` emas), shuning uchun tarmoqdagi boshqa qurilmalardan bevosita ulanish imkoni yo'q (mobil ulanish shu tizim ichidagi Socket.IO rooms orqali amalga oshiriladi).
+
+---
+## 6. Security & Isolation (Xavfsizlik)
 - **Path Isolation:** Foydalanuvchi tanlagan ishchi papkadan (Working Directory) tashqaridagi fayllarni backend o'qimaydi.
 - **AI Permissions:** AI agenti buyruqlarni ishga tushirishidan oldin `isTerminalAllowed` kabi boolein qiymatlar tekshiriladi.
 - **Desktop (Electron) rejim:** Agar bu dastur Electron orqali Desktop ilova qilinsa, Express server kompyuterning mahalliy `localhost` portida yopiladi va faqat dastur ichidan ruxsat etiladi.
