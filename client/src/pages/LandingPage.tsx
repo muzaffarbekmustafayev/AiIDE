@@ -1,16 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Terminal, Code2, Sparkles, FolderTree, Cpu, Check, 
-  ArrowRight, ShieldCheck, Zap, BookOpen 
+  Terminal, Code2, Sparkles, FolderTree, Check,
+  ArrowRight, Globe, Monitor, Download,
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
-import { useEditorStore } from '../store';
-
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { workspaceRoot } = useEditorStore();
-
   return (
     <div className="min-h-screen flex flex-col bg-[#090b10] text-text-primary relative overflow-hidden select-none">
       {/* Ambient background blur lights */}
@@ -27,9 +23,9 @@ const LandingPage: React.FC = () => {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel-subtle text-xs text-text-secondary border border-white/10 mb-6 animate-fadeIn">
           <Sparkles size={13} className="text-accent-cyan" />
-          <span>Kelajak dasturlash muhiti — Web & Bulut</span>
+          <span>Kelajak dasturlash muhiti</span>
           <span className="text-white/30">|</span>
-          <span className="text-accent-blue font-medium">v1.0 Pro</span>
+          <span className="text-accent-blue font-medium">Web · Desktop · Terminal</span>
         </div>
 
         {/* Hero Title */}
@@ -37,66 +33,131 @@ const LandingPage: React.FC = () => {
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
             AI bilan boyitilgan{' '}
             <span className="bg-gradient-to-r from-accent-blue via-accent-cyan to-accent-green bg-clip-text text-transparent">
-              Bulutli IDE
+              Kod IDE
             </span>
           </h1>
           <p className="text-sm sm:text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
-            Brauzeringizda to'liq quvvatli kod muharriri, tezkor WebSockets terminali, interaktiv fayllar daraxti va sun'iy intellekt agenti.
+            Brauzeringizda darhol boshlang, kompyuteringizga yuklab oling yoki faqat
+            tezkor aqlli terminalni oling — har bir ehtiyoj uchun bir model.
           </p>
         </div>
 
-        {/* Action Cards (Glassmorphism) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mb-14">
+        {/* ── 3 ta asosiy CTA kartalari (Distribution Models) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-5xl mb-14">
           
-          {/* Option 1: Full IDE */}
+          {/* CTA 1: Brauzerda ishlatish (faol, asosiy) */}
           <div 
             onClick={() => navigate('/ide')}
-            className="group glass-card rounded-2xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between relative overflow-hidden"
+            className="group relative rounded-2xl p-[1px] cursor-pointer bg-gradient-to-b from-accent-blue/60 via-white/10 to-white/5 hover:from-accent-blue hover:via-accent-cyan/50 to-white/5 transition-all"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-accent-blue/10 rounded-bl-full blur-2xl group-hover:bg-accent-blue/20 transition-all pointer-events-none" />
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-accent-blue/15 border border-accent-blue/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Code2 size={24} className="text-accent-blue" />
+            <div className="relative rounded-2xl bg-[#0c0f1a]/95 backdrop-blur-xl p-6 sm:p-7 flex flex-col justify-between h-full">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-accent-blue/10 rounded-bl-full blur-2xl group-hover:bg-accent-blue/25 transition-all pointer-events-none" />
+              <div className="absolute -top-2.5 left-5 flex">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-accent-blue to-accent-cyan text-slate-950">
+                  Asosiy
+                </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 group-hover:text-accent-blue transition-colors">
-                To'liq Web IDE
-              </h2>
-              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed mb-6">
-                Monaco Editor, Explorer daraxti, ikkitomonlama PTY terminal va AI Agent paneli bitta mukammal ish stolida.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-              <span className="text-xs font-semibold text-accent-blue flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
-                IDE-ni ochish <ArrowRight size={14} />
-              </span>
-              <span className="text-[11px] text-text-muted">Desktop & Planshet</span>
+              <div className="mt-3">
+                <div className="w-12 h-12 rounded-xl bg-accent-blue/15 border border-accent-blue/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Globe size={24} className="text-accent-blue" />
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Brauzerda ishlatish</h2>
+                <p className="text-xs text-text-secondary leading-relaxed mb-5">
+                  Hech narsa o'rnatish shart emas. To'liq Web IDE — Monaco muharrir,
+                  fayllar daraxti, PTY terminal va AI agent bir klikda ochiladi.
+                </p>
+                <ul className="space-y-1.5 text-[11px] text-text-secondary mb-1">
+                  {['Hisob yaratish talab qilinmaydi', 'Har qanday qurilmada ishlaydi'].map((t) => (
+                    <li key={t} className="flex items-center gap-1.5">
+                      <Check size={12} className="text-accent-green flex-shrink-0" /> {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex items-center justify-between pt-4 mt-5 border-t border-white/5">
+                <span className="text-xs font-semibold text-accent-blue flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
+                  IDE-ni ochish <ArrowRight size={14} />
+                </span>
+                <span className="text-[11px] text-text-muted">Darhol</span>
+              </div>
             </div>
           </div>
 
-          {/* Option 2: Terminal Only */}
-          <div 
-            onClick={() => navigate('/terminal')}
-            className="group glass-card rounded-2xl p-6 sm:p-8 cursor-pointer flex flex-col justify-between relative overflow-hidden"
+          {/* CTA 2: Desktop'ni yuklab olish (yakunlanmoqda) */}
+          <div
+            className="group relative rounded-2xl glass-card p-6 sm:p-7 flex flex-col justify-between h-full cursor-not-allowed opacity-80"
+            title="Birinchilari orasida bo'lish — tez orada!"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-accent-cyan/10 rounded-bl-full blur-2xl group-hover:bg-accent-cyan/20 transition-all pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-accent-cyan/10 rounded-bl-full blur-2xl pointer-events-none" />
             <div>
-              <div className="w-12 h-12 rounded-xl bg-accent-cyan/15 border border-accent-cyan/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Terminal size={24} className="text-accent-cyan" />
+              <div className="flex items-start justify-between">
+                <div className="w-12 h-12 rounded-xl bg-accent-cyan/15 border border-accent-cyan/20 flex items-center justify-center mb-4">
+                  <Monitor size={24} className="text-accent-cyan" />
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-amber-400/15 text-amber-300 border border-amber-400/25">
+                  Tez orada
+                </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 group-hover:text-accent-cyan transition-colors">
-                Terminal Rejimi
-              </h2>
-              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed mb-6">
-                Faqat buyruqlar satri kerakmi? To'liq ekranli, mobilga moslashuvchan, tezkor masofaviy terminal sessiyasi.
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Desktop'ni yuklab olish</h2>
+              <p className="text-xs text-text-secondary leading-relaxed mb-5">
+                Electron asosidagi mustaqil dastur. Offline ishlash, mahalliy fayl
+                tizimiga to'liq kirish va tarmoq talab qilmaydigan AI agent.
               </p>
+              <div className="flex flex-wrap gap-1.5">
+                {['Windows .exe', 'macOS .dmg', 'Linux .AppImage'].map((os) => (
+                  <span key={os} className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/5 border border-white/10 text-text-muted">
+                    {os}
+                  </span>
+                ))}
+              </div>
             </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-              <span className="text-xs font-semibold text-accent-cyan flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
-                Terminalni ishga tushirish <ArrowRight size={14} />
+            <div className="flex items-center justify-between pt-4 mt-5 border-t border-white/5">
+              <span className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
+                <Download size={14} /> Yuklab olish
               </span>
-              <span className="text-[11px] text-text-muted">Tezkor Shell</span>
+              <span className="text-[11px] text-text-muted">Electron build</span>
+            </div>
+          </div>
+
+          {/* CTA 3: Terminalni yuklab olish (yakunlanmoqda) */}
+          <div
+            className="group relative rounded-2xl glass-card p-6 sm:p-7 flex flex-col justify-between h-full cursor-not-allowed opacity-80"
+            title="Birinchilari orasida bo'lish — tez orada!"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-accent-green/10 rounded-bl-full blur-2xl pointer-events-none" />
+            <div>
+              <div className="flex items-start justify-between">
+                <div className="w-12 h-12 rounded-xl bg-accent-green/15 border border-accent-green/20 flex items-center justify-center mb-4">
+                  <Terminal size={24} className="text-accent-green" />
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-amber-400/15 text-amber-300 border border-amber-400/25">
+                  Tez orada
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Terminalni yuklab olish</h2>
+              <p className="text-xs text-text-secondary leading-relaxed mb-5">
+                Eng yengil versiya — faqat aqlli terminal. Kod muharririsiz,
+                minimal interfeys, sessiyalar va mobil ulanish saqlanadi.
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {['Yengil va tez', 'CLI uchun'].map((os) => (
+                  <span key={os} className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/5 border border-white/10 text-text-muted">
+                    {os}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between pt-4 mt-5 border-t border-white/5">
+              <span className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
+                <Download size={14} /> Yuklab olish
+              </span>
+              <span className="text-[11px] text-text-muted">Yoki</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); navigate('/terminal'); }}
+                className="text-[11px] font-semibold text-accent-green hover:underline"
+              >
+                Brauzerda sinash →
+            </button>
             </div>
           </div>
 
@@ -108,10 +169,9 @@ const LandingPage: React.FC = () => {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Asosiy afzalliklar
             </h3>
-          </div>
+    </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
             <div className="glass-panel-subtle rounded-xl p-4 border border-white/5 space-y-2">
               <div className="w-7 h-7 rounded-lg bg-accent-blue/15 flex items-center justify-center text-accent-blue mb-2">
                 <Code2 size={16} />
@@ -151,7 +211,6 @@ const LandingPage: React.FC = () => {
                 Kod tahlili, xatolarni tuzatish va avtomatik kod yozish yordami.
               </p>
             </div>
-
           </div>
         </div>
 
@@ -162,7 +221,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-text-secondary">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
-            <span>AI IDE Bulut Ish Stoli</span>
+            <span>AiIDE — AI-Powered Code IDE</span>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => navigate('/docs')} className="hover:text-white transition-colors">
@@ -184,3 +243,4 @@ const LandingPage: React.FC = () => {
 };
 
 export default LandingPage;
+
